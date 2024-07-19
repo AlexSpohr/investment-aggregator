@@ -1,7 +1,7 @@
 package com.projects.investmentaggregator.controller;
 
-
 import com.projects.investmentaggregator.controller.dto.CreateUserDto;
+import com.projects.investmentaggregator.controller.dto.UpdateUserDto;
 import com.projects.investmentaggregator.entity.User;
 import com.projects.investmentaggregator.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +41,13 @@ public class UserController {
         var users = userService.listUsers();
 
         return ResponseEntity.ok(users);
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<Void> updateUserById(@PathVariable("userId") String userId,
+                                           @RequestBody UpdateUserDto updateUserDto) {
+        userService.updateUserById(userId, updateUserDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{userId}")

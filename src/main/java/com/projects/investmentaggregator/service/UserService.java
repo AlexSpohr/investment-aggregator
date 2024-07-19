@@ -1,6 +1,7 @@
 package com.projects.investmentaggregator.service;
 
 import com.projects.investmentaggregator.controller.dto.CreateUserDto;
+import com.projects.investmentaggregator.controller.dto.UpdateUserDto;
 import com.projects.investmentaggregator.entity.User;
 import com.projects.investmentaggregator.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,26 @@ public class UserService {
 
     public List<User> listUsers() {
         return userRepository.findAll();
+    }
+
+    public void updateUserById(String userId,
+                               UpdateUserDto updateUserDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + userId));
+
+        updateUserFields(user, updateUserDto);
+
+        userRepository.save(user);
+    }
+
+    public void updateUserFields(User user, UpdateUserDto updateUserDto) {
+        if (updateUserDto.username() != null && !updateUserDto.username().isBlank()) {
+            user.setUsername(updateUserDto.username());
+        }
+
+        if (updateUserDto.password() != null && !updateUserDto.password().isBlank()) {
+            user.setPassword((updateUserDto.password()));
+        }
     }
 
     public void deleteUser(String userId) {
