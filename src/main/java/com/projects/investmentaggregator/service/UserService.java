@@ -34,4 +34,12 @@ public class UserService {
     public List<User> listUsers() {
         return userRepository.findAll();
     }
+
+    public void deleteUser(String userId) {
+
+        var userExists = userRepository.existsById(userId);
+        if (userExists) {
+            userRepository.deleteById(userId);
+        }
+    }
 }
