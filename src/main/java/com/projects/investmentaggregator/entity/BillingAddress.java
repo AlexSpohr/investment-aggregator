@@ -18,7 +18,7 @@ public class BillingAddress {
     @Column(name = "account_id")
     private Long id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "account_id")
     private Account account;

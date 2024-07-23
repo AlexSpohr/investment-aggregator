@@ -1,5 +1,6 @@
 package com.projects.investmentaggregator.controller;
 
+import com.projects.investmentaggregator.controller.dto.CreateAccountDto;
 import com.projects.investmentaggregator.controller.dto.CreateUserDto;
 import com.projects.investmentaggregator.controller.dto.UpdateUserDto;
 import com.projects.investmentaggregator.entity.User;
@@ -54,5 +55,12 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable("userId") String userId) {
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{userId}/accounts")
+    public ResponseEntity<Void> createAccount(@PathVariable("userId") String userId,
+                                           @RequestBody CreateAccountDto createAccountDto) {
+        userService.createAccount(userId, createAccountDto);
+        return ResponseEntity.ok().build();
     }
 }

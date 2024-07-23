@@ -32,6 +32,13 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "account")
     private List<AccountStock> accountStocks;
+
+    public Account(String description, BillingAddress billingAddress, User user, List<AccountStock> accountStocks) {
+        this.description = description;
+        this.billingAddress = billingAddress;
+        this.user = user;
+        this.accountStocks = accountStocks;
+    }
 }
