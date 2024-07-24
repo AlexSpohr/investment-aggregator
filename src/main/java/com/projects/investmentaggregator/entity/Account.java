@@ -1,5 +1,7 @@
 package com.projects.investmentaggregator.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,14 +27,17 @@ public class Account {
     private String description;
 
     @OneToOne(mappedBy = "account")
+    @JsonManagedReference
     @PrimaryKeyJoinColumn
     private BillingAddress billingAddress;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "account")
+    @JsonManagedReference
     private List<AccountStock> accountStocks;
 
     public Account(String description, BillingAddress billingAddress, User user, List<AccountStock> accountStocks) {

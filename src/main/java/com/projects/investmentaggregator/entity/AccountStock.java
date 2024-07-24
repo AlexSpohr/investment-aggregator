@@ -1,5 +1,6 @@
 package com.projects.investmentaggregator.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class AccountStock {
 
     @ManyToOne
     @MapsId("accountId")
+    @JsonBackReference
     @JoinColumn(name = "account_id")
     private Account account;
 

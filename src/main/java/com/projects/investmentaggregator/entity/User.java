@@ -1,5 +1,6 @@
 package com.projects.investmentaggregator.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +43,7 @@ public class User {
     private Instant updateTimestamp;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<Account> accounts;
 
     public User(String username, String email, String password) {
