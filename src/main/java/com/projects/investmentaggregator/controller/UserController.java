@@ -6,6 +6,7 @@ import com.projects.investmentaggregator.controller.dto.CreateUserDto;
 import com.projects.investmentaggregator.controller.dto.UpdateUserDto;
 import com.projects.investmentaggregator.entity.User;
 import com.projects.investmentaggregator.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<User> createUser(@RequestBody CreateUserDto createUserDto) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
         var userId = userService.createUser(createUserDto);
         return ResponseEntity.created(URI.create("/v1/users/" + userId)).build();
     }
@@ -46,7 +47,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> updateUserById(@PathVariable("userId") String userId,
+    public ResponseEntity<Void> updateUserById(@Valid @PathVariable("userId") String userId,
                                            @RequestBody UpdateUserDto updateUserDto) {
         userService.updateUserById(userId, updateUserDto);
         return ResponseEntity.noContent().build();

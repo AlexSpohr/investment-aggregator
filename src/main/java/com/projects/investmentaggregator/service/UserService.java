@@ -7,6 +7,7 @@ import com.projects.investmentaggregator.controller.dto.UpdateUserDto;
 import com.projects.investmentaggregator.entity.Account;
 import com.projects.investmentaggregator.entity.BillingAddress;
 import com.projects.investmentaggregator.entity.User;
+import com.projects.investmentaggregator.exception.UserEmailAlreadyExistException;
 import com.projects.investmentaggregator.repository.AccountRepository;
 import com.projects.investmentaggregator.repository.BillingAddressRepository;
 import com.projects.investmentaggregator.repository.UserRepository;
@@ -18,7 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 public class UserService {
@@ -37,7 +38,14 @@ public class UserService {
         this.billingAddressRepository = billingAddressRepository;
     }
 
+    @Transactional
     public String createUser(CreateUserDto createUserDto) {
+
+        var userDb = userRepository.findByEmail(createUserDto.email());
+
+        if(userDb.isPresent()) {
+            throw new UserEmailAlreadyExistException("Email already exists");
+        }
 
         var userSaved = userRepository.save(createUserDto.toUser());
         return userSaved.getUserId();
@@ -50,10 +58,12 @@ public class UserService {
 
     }
 
+    @Transactional(readOnly = true)
     public List<User> listUsers() {
         return userRepository.findAll();
     }
 
+    @Transactional
     public void updateUserById(String userId,
                                UpdateUserDto updateUserDto) {
         User user = userRepository.findById(userId)
@@ -64,6 +74,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void updateUserFields(User user, UpdateUserDto updateUserDto) {
         if (updateUserDto.username() != null && !updateUserDto.username().isBlank()) {
             user.setUsername(updateUserDto.username());
@@ -74,6 +85,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void deleteUser(String userId) {
 
         var userExists = userRepository.existsById(userId);
@@ -82,6 +94,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void createAccount(String userId, CreateAccountDto createAccountDto) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -105,6 +118,7 @@ public class UserService {
         billingAddressRepository.save(billingAddress);
     }
 
+    @Transactional(readOnly = true)
     public List<AccountResponseDto> listAccounts(String userId) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
