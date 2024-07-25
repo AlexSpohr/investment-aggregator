@@ -11,6 +11,7 @@ import com.projects.investmentaggregator.exception.UserEmailAlreadyExistExceptio
 import com.projects.investmentaggregator.repository.AccountRepository;
 import com.projects.investmentaggregator.repository.BillingAddressRepository;
 import com.projects.investmentaggregator.repository.UserRepository;
+import com.projects.investmentaggregator.util.PasswordUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,17 +26,17 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final AccountRepository accountRepository;
-
     private final BillingAddressRepository billingAddressRepository;
+    private final PasswordUtil passwordUtil;
 
     public UserService(UserRepository userRepository,
                        AccountRepository accountRepository,
-                       BillingAddressRepository billingAddressRepository) {
+                       BillingAddressRepository billingAddressRepository, PasswordUtil passwordUtil) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.billingAddressRepository = billingAddressRepository;
+        this.passwordUtil = passwordUtil;
     }
 
     @Transactional
@@ -43,11 +44,14 @@ public class UserService {
 
         var userDb = userRepository.findByEmail(createUserDto.email());
 
-        if(userDb.isPresent()) {
+        if (userDb.isPresent()) {
             throw new UserEmailAlreadyExistException("Email already exists");
         }
 
-        var userSaved = userRepository.save(createUserDto.toUser());
+        var user = createUserDto.toUser();
+        user.setPassword(passwordUtil.encode(createUserDto.password()));
+
+        var userSaved = userRepository.save(user);
         return userSaved.getUserId();
     }
 
@@ -81,7 +85,7 @@ public class UserService {
         }
 
         if (updateUserDto.password() != null && !updateUserDto.password().isBlank()) {
-            user.setPassword((updateUserDto.password()));
+            user.setPassword((passwordUtil.encode(updateUserDto.password())));
         }
     }
 
