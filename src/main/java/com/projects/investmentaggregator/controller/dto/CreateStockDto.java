@@ -1,4 +1,6 @@
 package com.projects.investmentaggregator.controller.dto;
 
-public record CreateStockDto(String stockId, String description) {
+import jakarta.validation.constraints.NotBlank;
+
+public record CreateStockDto(@NotBlank String stockId, @NotBlank String description) {
 }

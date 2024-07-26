@@ -47,8 +47,8 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> updateUserById(@Valid @PathVariable("userId") String userId,
-                                           @RequestBody UpdateUserDto updateUserDto) {
+    public ResponseEntity<Void> updateUserById(@PathVariable("userId") String userId,
+                                               @Valid @RequestBody UpdateUserDto updateUserDto) {
         userService.updateUserById(userId, updateUserDto);
         return ResponseEntity.noContent().build();
     }
@@ -61,7 +61,7 @@ public class UserController {
 
     @PostMapping("/{userId}/accounts")
     public ResponseEntity<Void> createAccount(@PathVariable("userId") String userId,
-                                           @RequestBody CreateAccountDto createAccountDto) {
+                                              @Valid @RequestBody CreateAccountDto createAccountDto) {
         userService.createAccount(userId, createAccountDto);
         return ResponseEntity.ok().build();
     }

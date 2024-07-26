@@ -4,6 +4,7 @@ import com.projects.investmentaggregator.controller.dto.CreateStockDto;
 import com.projects.investmentaggregator.controller.dto.CreateUserDto;
 import com.projects.investmentaggregator.entity.User;
 import com.projects.investmentaggregator.service.StockService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,7 @@ public class StockController {
     }
 
     @PostMapping()
-    public ResponseEntity<Void> createStock(@RequestBody CreateStockDto createStockDto) {
+    public ResponseEntity<Void> createStock(@Valid @RequestBody CreateStockDto createStockDto) {
         stockService.createStock(createStockDto);
         return ResponseEntity.ok().build();
     }
