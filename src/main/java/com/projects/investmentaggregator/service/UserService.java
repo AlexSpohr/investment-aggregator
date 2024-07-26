@@ -8,6 +8,7 @@ import com.projects.investmentaggregator.entity.Account;
 import com.projects.investmentaggregator.entity.BillingAddress;
 import com.projects.investmentaggregator.entity.User;
 import com.projects.investmentaggregator.exception.UserEmailAlreadyExistException;
+import com.projects.investmentaggregator.exception.UserNotFoundException;
 import com.projects.investmentaggregator.repository.AccountRepository;
 import com.projects.investmentaggregator.repository.BillingAddressRepository;
 import com.projects.investmentaggregator.repository.UserRepository;
@@ -57,9 +58,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> getUserById(String userId) {
-
         return userRepository.findById(userId);
-
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +70,7 @@ public class UserService {
     public void updateUserById(String userId,
                                UpdateUserDto updateUserDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         updateUserFields(user, updateUserDto);
 
@@ -85,23 +84,24 @@ public class UserService {
         }
 
         if (updateUserDto.password() != null && !updateUserDto.password().isBlank()) {
-            user.setPassword((passwordUtil.encode(updateUserDto.password())));
+            user.setPassword(passwordUtil.encode(updateUserDto.password()));
         }
     }
 
     @Transactional
     public void deleteUser(String userId) {
 
-        var userExists = userRepository.existsById(userId);
-        if (userExists) {
-            userRepository.deleteById(userId);
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
         }
+        userRepository.deleteById(userId);
+
     }
 
     @Transactional
     public void createAccount(String userId, CreateAccountDto createAccountDto) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         var account = new Account (
                 createAccountDto.description(),
@@ -125,7 +125,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<AccountResponseDto> listAccounts(String userId) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         return user.getAccounts()
                 .stream()

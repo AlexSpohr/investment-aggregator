@@ -5,12 +5,16 @@ import com.projects.investmentaggregator.controller.dto.AccountStockResponseDto;
 import com.projects.investmentaggregator.controller.dto.AssociateAccountStockDto;
 import com.projects.investmentaggregator.entity.AccountStock;
 import com.projects.investmentaggregator.entity.AccountStockId;
+import com.projects.investmentaggregator.exception.AccountNotFoundException;
+import com.projects.investmentaggregator.exception.BrapiErrorException;
+import com.projects.investmentaggregator.exception.StockNotFoundException;
 import com.projects.investmentaggregator.repository.AccountRepository;
 import com.projects.investmentaggregator.repository.AccountStockRepository;
 import com.projects.investmentaggregator.repository.StockRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -32,13 +36,14 @@ public class AccountService {
         this.brapiClient = brapiClient;
     }
 
+    @Transactional
     public void associateStock(String accountId, AssociateAccountStockDto associateDto) {
 
         var account = accountRepository.findById(Long.parseLong(accountId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         var stock = stockRepository.findById(associateDto.stockId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new StockNotFoundException(associateDto.stockId()));
 
         var id = new AccountStockId(
                 account.getAccountId(),
@@ -54,10 +59,11 @@ public class AccountService {
         accountStockRepository.save(entity);
     }
 
+    @Transactional(readOnly = true)
     public List<AccountStockResponseDto> listStocks(String accountId) {
 
         var account = accountRepository.findById(Long.parseLong(accountId))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         return account.getAccountStocks()
                 .stream()
@@ -70,10 +76,12 @@ public class AccountService {
 
     private double getTotal(Integer quantity, String stockId) {
 
-        var response = brapiClient.getQuote(TOKEN, stockId);
-
-        var price = response.results().get(0).regularMarketPrice();
-
-        return price * quantity;
+        try {
+            var response = brapiClient.getQuote(TOKEN, stockId);
+            var price = response.results().get(0).regularMarketPrice();
+            return price * quantity;
+        } catch (Exception e) {
+            throw new BrapiErrorException(stockId);
+        }
     }
 }
